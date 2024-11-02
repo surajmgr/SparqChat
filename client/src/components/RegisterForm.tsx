@@ -88,8 +88,7 @@ const RegisterForm: React.FC = () => {
                     type="email"
                     name="email"
                     id="email"
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
+                    {...formik.getFieldProps("email")}
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="name@company.com"
                     required=""
@@ -111,8 +110,7 @@ const RegisterForm: React.FC = () => {
                     type="password"
                     name="password"
                     id="password"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
+                    {...formik.getFieldProps("password")}
                     placeholder="••••••••"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required=""
@@ -134,8 +132,7 @@ const RegisterForm: React.FC = () => {
                     type="confirmPassword"
                     name="confirmPassword"
                     id="confirmPassword"
-                    value={formik.values.confirmPassword}
-                    onChange={formik.handleChange}
+                    {...formik.getFieldProps("confirmPassword")}
                     placeholder="••••••••"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required=""
@@ -151,8 +148,8 @@ const RegisterForm: React.FC = () => {
                   <div class="flex items-center h-5">
                     <input
                       id="terms"
-                      value={formik.values.terms}
-                      onChange={formik.handleChange}
+                      name="terms"
+                      {...formik.getFieldProps("terms")}
                       aria-describedby="terms"
                       type="checkbox"
                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-black dark:ring-offset-gray-800"
