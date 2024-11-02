@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import { useFormik } from "formik";
+import axios from "axios";
 
 const LoginForm: React.FC = () => {
   const { user, login } = useAuth();
@@ -33,18 +34,24 @@ const LoginForm: React.FC = () => {
     onSubmit: async (values) => {
       try {
         // Login user
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/login`, {
-          username: values.email,
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+          email: values.email,
           password: values.password,
         });
 
-        login(values.email);
+        // it responds with a token
+        const token = res.data.token;
+        login(values.email, token);
 
         // Redirect to home page
         window.location.href = "/";
       } catch (error) {
         console.error(error);
+        if (error.response.data.message) {
+          alert(error.response.data.message);
+        } else {
         alert("An error occurred. Please try again.");
+        }
       }
     },
   });

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface AuthContextType {
     user: string | null;
-    login: (username: string) => void;
+    login: (email: string, token: string) => void;
     logout: () => void;
 }
 
@@ -19,15 +19,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
-    const login = (username: string) => {
-        setUser(username);
+    const login = (email: string, token: string) => {
+        setUser(email);
         // Save user to local storage
-        localStorage.setItem('user', username);
+        localStorage.setItem('user', email);
+        localStorage.setItem('token', token);
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('user'); // clear user from local storage when logging out
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
     };
 
     return (

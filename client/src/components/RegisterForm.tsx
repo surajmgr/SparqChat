@@ -5,6 +5,7 @@ import axios from "axios";
 import { useFormik } from "formik";
 
 const RegisterForm: React.FC = () => {
+  const { user, login } = useAuth();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -44,16 +45,22 @@ const RegisterForm: React.FC = () => {
     onSubmit: async (values) => {
       try {
         // Register user
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/register`, {
-          username: values.email,
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
+          email: values.email,
           password: values.password,
         });
 
+        login(values.email, res.data.token);
+        
         // Redirect to login page
         window.location.href = "/login";
       } catch (error) {
         console.error(error);
+        if (error.response.data.message) {
+          alert(error.response.data.message);
+        } else {
         alert("An error occurred. Please try again.");
+        }
       }
     },
   });
