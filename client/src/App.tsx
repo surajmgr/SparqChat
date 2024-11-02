@@ -5,6 +5,7 @@ import DummyComponent from './components/DummyComponent';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import LoginForm from './components/LoginForm';
 
 const notify = () => toast("Wow so easy!");
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/dummy" element={<DummyComponent />} />
+        <Route path='/login' element={<LoginForm />} />
       </Routes>
     </Router>
   );
