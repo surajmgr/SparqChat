@@ -1,0 +1,22 @@
+# Sensitive
+.env*
+!.env.example
+secrets/
+*.pem
+*.cert
+
+# Dependencies
+node_modules/
+dist/
+build/
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment
+.idea/
+.vscode/
+*.env.local
