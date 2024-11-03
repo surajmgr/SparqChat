@@ -2,19 +2,27 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Yup from 'yup';
 
 const prisma = new PrismaClient();
 
-// Define the type for the expected request body
-interface RegisterRequestBody {
-  email: string;
-  password: string;
-}
+const registerSchema = Yup.object().shape({
+  email: Yup.string().email().required("Email is required"),
+  password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+});
 
-export const registerController = async (req: Request<{}, {}, RegisterRequestBody>, res: Response) => {
+export const registerController = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const data = req.body;
+    
+    try {
+      await registerSchema.validate(data);
+    } catch (error) {
+      return res.status(400).json({ message: error.errors[0] });
+    }
 
+    const { email, password } = data;
+    
     // Check if user exists
     const user = await prisma.user.findUnique({
       where: {
