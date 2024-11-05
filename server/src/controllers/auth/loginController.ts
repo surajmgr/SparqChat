@@ -42,13 +42,24 @@ export const loginController = async (req: Request, res: Response) => {
     }
 
     // Create JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    // const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    //   expiresIn: '1h',
+    // });
 
-    res.json({ token });
+    // Using Session
+    req.session.user = { id: user.id, email: user.email };
+    
+    res.json({ message: 'Logged in successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const checkLoggedInStatus = (req: Request, res: Response) => {
+  if (req.session.user) {
+    res.json({ isLoggedIn: true });
+  } else {
+    res.json({ isLoggedIn: false });
   }
 };

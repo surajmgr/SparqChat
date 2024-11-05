@@ -13,10 +13,12 @@ import "react-toastify/dist/ReactToastify.css";
 import LoginForm from "./components/LoginForm";
 import { AuthProvider, useAuth } from "./utils/AuthContext";
 import RegisterForm from "./components/RegisterForm";
+import Chat from "./components/Chat";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return null;
   return user ? children : <Navigate to="/login" replace />;
 };
 
@@ -70,7 +72,7 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Chat />} />
             <Route path="/about" element={<About />} />
             <Route path="/dummy" element={<DummyComponent />} />
           </Route>
