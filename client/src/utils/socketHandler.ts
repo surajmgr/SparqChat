@@ -66,10 +66,15 @@ export const handleSocketsEmission = ({
 
   socket.on("new_message", (data: { senderId: string; message: string }) => {
     if (data.senderId === mainChat?.id || data.senderId === user.id) {
-      setMainChat((prev) => ({
-        ...prev,
-        messages: [...prev?.messages, data],
-      }));
+      setMainChat((prev) => {
+        if (prev) {
+          return {
+            ...prev,
+            messages: [...prev.messages, data],
+          };
+        }
+        return prev;
+      });
     } else {
       toast.info(`New Message from ${data.senderId}`);
     }

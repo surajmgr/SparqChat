@@ -19,9 +19,9 @@ export const fetchRandomChat = async (): Promise<MainChat> => {
       }
     );
     return res.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch random chat", error);
-    toast.error(error.response.data.message);
+    toast.error(error.response?.data?.message || "An error occurred");
     throw new Error("Failed to fetch random chat");
   }
 };
@@ -62,9 +62,9 @@ export const sendMessage = async (
         };
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to send message", error);
-    toast.error(error.response.data.message);
+    toast.error(error.response?.data?.message || "An error occurred");
   }
 };
 
@@ -86,9 +86,9 @@ export const fetchChatMessages = async (
       }
     );
     return res.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch chat messages", error);
-    toast.error(error.response.data.message);
+    toast.error(error.response?.data?.message || "An error occurred");
     throw new Error("Failed to fetch chat messages");
   }
 };
