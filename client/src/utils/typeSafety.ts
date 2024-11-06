@@ -7,7 +7,7 @@ export interface Message {
 }
 
 export interface MainChat {
-    id: number;
+    id: string;
     name: string;
     img: string;
     online: boolean;
@@ -16,7 +16,7 @@ export interface MainChat {
 }
 
 export interface User {
-    id: number;
+    id: string;
     name: string;
     img: string;
     online: boolean;
@@ -24,13 +24,13 @@ export interface User {
 }
 
 export interface FriendRequest {
-    id: number;
+    id: string;
     name: string;
     img: string;
 }
 
 export interface Friend {
-    id: number;
+    id: string;
     name: string;
     img: string;
     online: boolean;

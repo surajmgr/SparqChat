@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { socket, connectSocket, disconnectSocket } from "../socket";
+import { socket, connectSocket, disconnectSocket } from "./socket";
 
 const useSocketSetup = (event: string, callback: (data: any) => void) => {
   const [data, setData] = useState<any>(null);
