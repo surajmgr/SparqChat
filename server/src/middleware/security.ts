@@ -8,6 +8,9 @@ import { Redis } from 'ioredis';
 import { RedisStore } from 'connect-redis';
 import { Application, Request, Response, NextFunction } from 'express';
 import { redisClient } from '../utils/redis';
+import dotnet from 'dotenv';
+
+dotnet.config();
 
 export const securityMiddleware = (app: Application): void => {
   app.use(cookieParser());
@@ -83,10 +86,10 @@ export const protectRoutes = (
 };
 
 export const sessionMiddleware = session({
-  secret: 'keyboard cat',
+  secret: process.env.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
-  store: new RedisStore({ client: new Redis() }),
+  store: new RedisStore({ client: redisClient as Redis }),
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

@@ -9,7 +9,7 @@ import { socket, connectSocket, disconnectSocket } from "./socket";
 
 interface AuthContextType {
   user: string | null;
-  login: (id: int, email: string) => void;
+  login: (user: { id: string; email: string; socketId: string }) => void;
   logout: () => void;
 }
 
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = (user: { id: int; email: string, socketId: string }) => {
+  const login = (user: { id: string; email: string; socketId: string }) => {
     localStorage.setItem("user", JSON.stringify(user));
     setUser(user);
   };

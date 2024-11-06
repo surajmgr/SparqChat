@@ -48,24 +48,13 @@ export const handleSocketsEmission = (setFriendRequests, setFriends, setMainChat
   });
 
   socket.on("new_message", (data) => {
-    toast.info(`New Message: ${data.text}`);
     if (data.senderId === mainChat?.id || data.senderId === user.id) {
       setMainChat((prev) => ({
         ...prev,
         messages: [...prev.messages, data],
       }));
     } else {
-      setFriends(
-        friends.map((friend) => {
-          if (friend.id === data.senderId) {
-            return {
-              ...friend,
-              recentMessage: data.text,
-            };
-          }
-          return friend;
-        })
-      );
+      toast.info(`New Message from ${data.senderId}`);
     }
   });
 

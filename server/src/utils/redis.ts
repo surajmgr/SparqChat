@@ -1,9 +1,9 @@
 import { RedisStore } from 'connect-redis';
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
 
-export const redisClient = new Redis({
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: Number(process.env.REDIS_PORT) || 6379,
-});
+dotenv.config();
+
+export const redisClient = new Redis(process.env.REDIS_URL);
 
 export const store = new RedisStore({ client: redisClient });

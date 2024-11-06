@@ -42,6 +42,7 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
 
         res.json({ message: "Friend request sent." });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "An error occurred while sending the friend request." });
     }
 };
@@ -72,6 +73,7 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
 
         res.json({ message: "Friend request accepted.", online: requesterSocketId ? true : false });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "An error occurred while accepting the friend request." });
     }
 };
@@ -100,6 +102,7 @@ export const removeFriend = async (req: Request, res: Response) => {
 
         res.json({ message: "Friend removed successfully." });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "An error occurred while removing the friend." });
     }
 };
@@ -121,6 +124,7 @@ export const rejectFriendRequest = async (req: Request, res: Response) => {
 
         res.json({ message: "Friend request rejected." });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "An error occurred while rejecting the friend request." });
     }
 }
@@ -134,7 +138,7 @@ export const fetchFriends = async (req: Request, res: Response) => {
         
         for (const friendId of friends) {
             let friend = await prisma.users.findUnique({
-                where: { id: parseInt(friendId) }
+                where: { id: friendId }
             });
             
             friend = {
@@ -149,6 +153,7 @@ export const fetchFriends = async (req: Request, res: Response) => {
 
         res.json(friendList);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "An error occurred while fetching friends." });
     }
 };
@@ -185,6 +190,7 @@ export const fetchFriendRequests = async (req: Request, res: Response) => {
 
         res.json(requestList);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "An error occurred while fetching friend requests." });
     }
 }
