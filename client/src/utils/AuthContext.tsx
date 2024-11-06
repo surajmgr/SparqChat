@@ -5,10 +5,11 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { socket, connectSocket, disconnectSocket } from "./socket";
 
 interface AuthContextType {
   user: string | null;
-  login: (email: string, token: string) => void;
+  login: (id: int, email: string) => void;
   logout: () => void;
 }
 
@@ -22,33 +23,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkIsLoggedIn().finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      connectSocket();
+    } else {
+      disconnectSocket();
+    }
+  }, [user]);
+
   const checkIsLoggedIn = async () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(storedUser);
+      setUser(JSON.parse(storedUser));
       return;
     }
 
     try {
-      const response = await fetch("/api/auth/isLoggedIn");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/isLoggedIn`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
       const data = await response.json();
       if (data.isLoggedIn) {
-        setUser(data.user.email);
-        localStorage.setItem("user", data.user.email);
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const login = (email: string, token: string) => {
-    localStorage.setItem("user", email);
-    setUser(email);
+  const login = (user: { id: int; email: string, socketId: string }) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
   };
 
   const logout = () => {
     try {
-      fetch("/api/auth/logout");
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
       localStorage.removeItem("user");
       setUser(null);
     } catch (error) {

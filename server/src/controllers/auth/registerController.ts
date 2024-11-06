@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../db/queryHandler';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Yup from 'yup';
-
-const prisma = new PrismaClient();
+import { v4 as uuidv4 } from 'uuid';
 
 const registerSchema = Yup.object().shape({
   email: Yup.string().email().required("Email is required"),
@@ -24,7 +24,7 @@ export const registerController = async (req: Request, res: Response) => {
     const { email, password } = data;
     
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: {
         email,
       },
@@ -39,19 +39,18 @@ export const registerController = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create user
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
+        name: email.split('@')[0],
         email,
         password: hashedPassword,
+        socketId: uuidv4(),
       },
     });
+    
+    req.session.user = { id: newUser.id, email: newUser.email, socketId: newUser.socketId };
 
-    // Create JWT token
-    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
-
-    res.json({ token });
+    res.json({ message: 'Registered successfully', user: req.session.user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

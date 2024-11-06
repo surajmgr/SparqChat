@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import { useFormik } from "formik";
 import axios from "axios";
+import useCustomNavigation from "../utils/useCustomNavigation";
+import useSocketSetup from "../utils/useSocketSetup";
 
 const LoginForm: React.FC = () => {
   const { user, login } = useAuth();
+  const redirect = useCustomNavigation();
 
   const formik = useFormik({
     initialValues: {
@@ -34,23 +37,26 @@ const LoginForm: React.FC = () => {
     onSubmit: async (values) => {
       try {
         // Login user
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
-          email: values.email,
-          password: values.password,
-        });
-
-        // it responds with a token
-        const token = res.data.token;
-        login(values.email, token);
-
-        // Redirect to home page
-        window.location.href = "/";
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+          {
+            email: values.email,
+            password: values.password,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        
+        login(res.data.user);
+        
+        redirect("/");
       } catch (error) {
         console.error(error);
         if (error.response.data.message) {
           alert(error.response.data.message);
         } else {
-        alert("An error occurred. Please try again.");
+          alert("An error occurred. Please try again.");
         }
       }
     },
@@ -91,11 +97,11 @@ const LoginForm: React.FC = () => {
                     placeholder="name@company.com"
                     required=""
                   />
-                    {formik.errors.email && formik.touched.email ? (
-                        <div className="text-red-500 text-sm">
-                            {formik.errors.email}
-                            </div>
-                            ) : null}
+                  {formik.errors.email && formik.touched.email ? (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.email}
+                    </div>
+                  ) : null}
                 </div>
                 <div>
                   <label
@@ -115,9 +121,9 @@ const LoginForm: React.FC = () => {
                   />
                   {formik.errors.password && formik.touched.password ? (
                     <div className="text-red-500 text-sm">
-                        {formik.errors.password}
-                        </div>
-                        ) : null}
+                      {formik.errors.password}
+                    </div>
+                  ) : null}
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-start">

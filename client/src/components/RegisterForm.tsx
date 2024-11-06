@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from "axios";
 import { useFormik } from "formik";
+import useCustomNavigation from "../utils/useCustomNavigation";
 
 const RegisterForm: React.FC = () => {
   const { user, login } = useAuth();
+  const redirect = useCustomNavigation();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -48,12 +50,14 @@ const RegisterForm: React.FC = () => {
         const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
           email: values.email,
           password: values.password,
+        },
+        {
+          withCredentials: true,
         });
 
-        login(values.email, res.data.token);
+        login(res.data.user);
         
-        // Redirect to login page
-        window.location.href = "/login";
+        redirect("/");
       } catch (error) {
         console.error(error);
         if (error.response.data.message) {

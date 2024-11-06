@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../db/queryHandler';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Yup from 'yup';
-
-const prisma = new PrismaClient();
 
 const loginSchema = Yup.object().shape({
   email: Yup.string().email().required('Email is required'),
@@ -24,7 +23,7 @@ export const loginController = async (req: Request, res: Response) => {
     const { email, password } = data;
 
     // Find user by email
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: {
         email,
       },
@@ -47,9 +46,9 @@ export const loginController = async (req: Request, res: Response) => {
     // });
 
     // Using Session
-    req.session.user = { id: user.id, email: user.email };
+    req.session.user = { id: user.id, email: user.email, socketId: user.socketId };
     
-    res.json({ message: 'Logged in successfully' });
+    res.json({ message: 'Logged in successfully', user: req.session.user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -58,8 +57,9 @@ export const loginController = async (req: Request, res: Response) => {
 
 export const checkLoggedInStatus = (req: Request, res: Response) => {
   if (req.session.user) {
-    res.json({ isLoggedIn: true });
+    console.log(req.session.user);
+    res.json({ isLoggedIn: true, user: req.session.user });
   } else {
-    res.json({ isLoggedIn: false });
+    res.json({ isLoggedIn: false, user: null });
   }
 };

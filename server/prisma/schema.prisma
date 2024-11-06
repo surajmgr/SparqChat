@@ -7,8 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  password String
+model Users {
+  id        Int    @id @default(autoincrement())
+  name      String
+  email     String @unique
+  password  String
+  socketId  String? @unique  // Nullable because users may not be online
+  createdAt DateTime @default(now())
+
+  // Relationships
+  sentRequests    Friendship[] @relation("SentRequests")
+  receivedRequests Friendship[] @relation("ReceivedRequests")
+  messagesSent    Chat[] @relation("MessagesSent")
+  messagesReceived Chat[] @relation("MessagesReceived")
+}
+
+model Friendship {
+  id          String  @id @default(uuid())
+  requester   Users   @relation("SentRequests", fields: [requesterId], references: [id])
+  recipient   Users   @relation("ReceivedRequests", fields: [recipientId], references: [id])
+  requesterId Int
+  recipientId Int
+  status      String  // "pending", "accepted", "blocked"
+  createdAt   DateTime @default(now())
+
+  @@unique([requesterId, recipientId]) // Prevent duplicate friend requests
+}
+
+model Chat {
+  id          String  @id @default(uuid())
+  sender      Users   @relation("MessagesSent", fields: [senderId], references: [id])
+  receiver    Users   @relation("MessagesReceived", fields: [receiverId], references: [id])
+  senderId    Int
+  receiverId  Int
+  message     String
+  createdAt   DateTime @default(now())
+
+  @@index([senderId, receiverId]) // Index for faster querying
 }

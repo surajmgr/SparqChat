@@ -7,6 +7,7 @@ import session from 'express-session';
 import { Redis } from 'ioredis';
 import { RedisStore } from 'connect-redis';
 import { Application, Request, Response, NextFunction } from 'express';
+import { redisClient } from '../utils/redis';
 
 export const securityMiddleware = (app: Application): void => {
   app.use(cookieParser());
@@ -25,20 +26,13 @@ export const securityMiddleware = (app: Application): void => {
     })
   );
 
-  // Initialize Redis client
-  const redisClient = new Redis({
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: Number(process.env.REDIS_PORT) || 6379,
-  });
-  const store = new RedisStore({ client: redisClient });
-
   // Rate limiter using Redis
   app.use(
     rateLimit({
       store: new RateLimitRedisStore({
         sendCommand: async (...args: string[]) => redisClient.call(...args),
       }),
-      windowMs: 15 * 60 * 1000, // 15 minutes
+      windowMs: 1 * 60 * 1000, // 15 minutes
       max: 100,
       standardHeaders: true,
       legacyHeaders: false,
@@ -89,7 +83,7 @@ export const protectRoutes = (
 };
 
 export const sessionMiddleware = session({
-  secret: process.env.SESSION_SECRET as string,
+  secret: 'keyboard cat',
   resave: false,
   saveUninitialized: false,
   store: new RedisStore({ client: new Redis() }),
