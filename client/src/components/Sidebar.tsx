@@ -1,26 +1,24 @@
 import React from 'react';
 import { acceptFriendRequest, rejectFriendRequest } from '../utils/friendHandler';
 import { fetchChatMessages } from '../utils/chatHandler';
-
-interface Contact {
-    id: number;
-    name: string;
-    img: string;
-    connected: boolean;
-}
+import { Friend, FriendRequest, MainChat } from '../utils/typeSafety';
 
 interface SidebarProps {
-    friends: Contact[];
-    friendRequests: Contact[];
+    friends: Friend[];
+    friendRequests: FriendRequest[];
     logout: () => void;
-    setFriendRequests: React.Dispatch<React.SetStateAction<Contact[]>>;
-    setFriends: React.Dispatch<React.SetStateAction<Contact[]>>;
+    setFriendRequests: React.Dispatch<React.SetStateAction<FriendRequest[]>>;
+    setFriends: React.Dispatch<React.SetStateAction<Friend[]>>;
+    mainChat: MainChat | null;
+    setMainChat: React.Dispatch<React.SetStateAction<MainChat | null>>;
+    user: { id: string; email: string; socketId: string } | null;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ friends, friendRequests, logout, setFriendRequests, setFriends, mainChat, setMainChat, user }) => {
 
-    const fetchChatFriend = async (contact: Contact) => {
+    const fetchChatFriend = async (contact: Friend) => {
         if (mainChat && mainChat.id === contact.id) return
+        if (!user) return
         try {
             const chat = await fetchChatMessages(user.id, contact.id, contact.email);
             setMainChat(chat);
@@ -41,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ friends, friendRequests, logout, setF
                             // take username and fetch chat messages from the server using prompt
                             const email = prompt("Enter email");
                             if (email) {
-                                fetchChatFriend({ id: null, name, email, img: "", connected: false });
+                                fetchChatFriend({ id: 'null', name: email, email, img: "", online: false });
                             }
                         }}
                     >

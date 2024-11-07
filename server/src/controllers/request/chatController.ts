@@ -81,7 +81,7 @@ export const getChatMessages = async (req: Request, res: Response) => {
   try {
     const { userId, chatUserId, chatEmail } = req.body;
 
-    const user = chatUserId
+    const user = chatUserId != 'null'
       ? await prisma.users.findUnique({
           where: {
             id: chatUserId,

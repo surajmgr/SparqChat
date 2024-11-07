@@ -2,10 +2,6 @@ import axios from "axios";
 import { MainChat, Message } from "./typeSafety";
 import { toast } from "react-toastify";
 
-interface FetchChatMessagesResponse {
-  messages: Message[];
-}
-
 interface SendMessageResponse {
   success: boolean;
 }
@@ -28,9 +24,9 @@ export const fetchRandomChat = async (): Promise<MainChat> => {
 
 export const sendMessage = async (
   message: string,
-  receiverId: number,
-  senderId: number,
-  setMainChat: React.Dispatch<React.SetStateAction<MainChat>>
+  receiverId: string,
+  senderId: string,
+  setMainChat: React.Dispatch<React.SetStateAction<MainChat | null>>
 ): Promise<void> => {
   try {
     const res = await axios.post<SendMessageResponse>(
@@ -46,10 +42,11 @@ export const sendMessage = async (
     if (res.data.success) {
       // add the message to the chat
       setMainChat((prev) => {
-        const newMessages = [
+        if (!prev) return null;
+        const newMessages: Message[] = [
           ...prev.messages,
           {
-            id: prev.messages.length + 1,
+            id: Math.random().toString(),
             text: message,
             timestamp: new Date().toISOString(),
             senderId,
@@ -69,13 +66,13 @@ export const sendMessage = async (
 };
 
 export const fetchChatMessages = async (
-  userId: number,
-  chatUserId: number,
+  userId: string,
+  chatUserId: string,
   chatEmail: string
-): Promise<FetchChatMessagesResponse> => {
+): Promise<MainChat> => {
   try {
-    const res = await axios.post<FetchChatMessagesResponse>(
-      `${import.meta.env.VITE_API_BASE_URL}/chat/messages`,
+    const res = await axios.post<MainChat>(
+        `${import.meta.env.VITE_API_BASE_URL}/chat/messages`,
       {
         userId,
         chatUserId,

@@ -36,7 +36,7 @@ export const acceptFriendRequest = async (
     if (friendData) {
       setFriends((prev) => [
         ...prev,
-        { id: friendId, name: friendData.name, img: friendData.img, online: res.data.online }
+        { id: friendId, name: friendData.name, img: friendData.img, online: res.data.online, email: friendData.email }
       ]);
     }
     toast.info(res.data.message);

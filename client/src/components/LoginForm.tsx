@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import { useAuth } from "../utils/AuthContext";
 import { useFormik } from "formik";
 import axios from "axios";
 import useCustomNavigation from "../utils/useCustomNavigation";
-import useSocketSetup from "../utils/useSocketSetup";
 
 const LoginForm: React.FC = () => {
-  const { user, login } = useAuth();
+  const { login } = useAuth();
   const redirect = useCustomNavigation();
 
   const formik = useFormik({
@@ -37,23 +35,23 @@ const LoginForm: React.FC = () => {
     onSubmit: async (values) => {
       try {
         // Login user
-        const res = await axios.post(
+        const res = await axios.post<{ user: any }>(
           `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
           {
-            email: values.email,
-            password: values.password,
+        email: values.email,
+        password: values.password,
           },
           {
-            withCredentials: true,
+        withCredentials: true,
           }
         );
         
         login(res.data.user);
         
         redirect("/");
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
-        if (error.response.data.message) {
+        if (error.response?.data?.message) {
           alert(error.response.data.message);
         } else {
           alert("An error occurred. Please try again.");
@@ -90,12 +88,11 @@ const LoginForm: React.FC = () => {
                   </label>
                   <input
                     type="email"
-                    name="email"
                     id="email"
                     {...formik.getFieldProps("email")}
                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-black focus:border-black block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="name@company.com"
-                    required=""
+                    required={true}
                   />
                   {formik.errors.email && formik.touched.email ? (
                     <div className="text-red-500 text-sm">
@@ -112,12 +109,11 @@ const LoginForm: React.FC = () => {
                   </label>
                   <input
                     type="password"
-                    name="password"
                     id="password"
                     {...formik.getFieldProps("password")}
                     placeholder="••••••••"
                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-black focus:border-black block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    required=""
+                    required={true}
                   />
                   {formik.errors.password && formik.touched.password ? (
                     <div className="text-red-500 text-sm">
@@ -133,7 +129,6 @@ const LoginForm: React.FC = () => {
                         aria-describedby="remember"
                         type="checkbox"
                         className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-black-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-black dark:ring-offset-gray-800"
-                        required=""
                       />
                     </div>
                     <div className="ml-3 text-sm">

@@ -9,7 +9,7 @@ interface SocketHandlerProps {
   friends: Friend[];
   friendRequests: FriendRequest[];
   mainChat: MainChat | null;
-  user: User;
+  user: User | null;
 }
 
 export const handleSocketsEmission = ({
@@ -65,12 +65,12 @@ export const handleSocketsEmission = ({
   });
 
   socket.on("new_message", (data: { senderId: string; message: string }) => {
-    if (data.senderId === mainChat?.id || data.senderId === user.id) {
+    if (data.senderId === mainChat?.id || (user && data.senderId === user.id)) {
       setMainChat((prev) => {
         if (prev) {
           return {
-            ...prev,
-            messages: [...prev.messages, data],
+        ...prev,
+        messages: [...prev.messages, { id: new Date().toISOString(), text: data.message, timestamp: new Date().toISOString(), senderId: data.senderId, receiverId: user?.id || '' }],
           };
         }
         return prev;

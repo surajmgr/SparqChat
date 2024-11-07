@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import "./index.css";
 import {
   BrowserRouter as Router,
@@ -14,32 +13,38 @@ import LoginForm from "./components/LoginForm";
 import { AuthProvider, useAuth } from "./utils/AuthContext";
 import RegisterForm from "./components/RegisterForm";
 import Chat from "./components/Chat";
+import { ReactNode } from "react";
 
 // Protected Route Component
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
-  if (loading) return null;
-  return user ? children : <Navigate to="/login" replace />;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 // Guest Route Component (for non-authenticated users)
-const GuestRoute = ({ children }) => {
-  const { user } = useAuth();
-  return !user ? children : <Navigate to="/" replace />;
-};
+const GuestRoute = ({ children }: { children: ReactNode }) => {
+  const { user, loading } = useAuth();
 
-const Home = () => {
-  const { user, logout } = useAuth();
-  return (
-    <div className="container p-6">
-      <h1>Home Page</h1>
-      <p>User: {user}</p>
-      <button onClick={logout} className="btn btn-primary">
-        Logout
-      </button>
-    </div>
-  );
-};
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 const About = () => (
   <div className="container p-6">
     <h1>About Page</h1>

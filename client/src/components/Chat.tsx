@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useAuth } from "../utils/AuthContext";
-import { socket, connectSocket, disconnectSocket } from "../utils/socket";
-import axios from "axios";
+import { connectSocket, disconnectSocket } from "../utils/socket";
 import { toast } from "react-toastify";
 import { handleSocketsEmission } from "../utils/socketHandler";
 import { Friend, FriendRequest, MainChat } from "../utils/typeSafety";
@@ -16,7 +15,7 @@ import {
 } from "../utils/friendHandler";
 import Sidebar from "./Sidebar";
 
-export const FriendsContext = createContext();
+export const FriendsContext = createContext<Friend[]>([]);
 
 const Chat: React.FC = () => {
   const { user, logout } = useAuth();
@@ -27,7 +26,7 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     connectSocket();
-    handleSocketsEmission(
+    handleSocketsEmission({
       setFriendRequests,
       setFriends,
       setMainChat,
@@ -35,7 +34,7 @@ const Chat: React.FC = () => {
       friendRequests,
       mainChat,
       user
-    );
+    });
     fetchRandomChat().then((chat) => setMainChat(chat));
     fetchFriends().then((friends) => setFriends(friends));
     fetchFriendRequests().then((requests) => setFriendRequests(requests));
@@ -56,7 +55,15 @@ const Chat: React.FC = () => {
       toast.error("Message cannot be empty.");
       return;
     }
-    await sendMessage(inputMessage, mainChat?.id, user.id, setMainChat);
+    if (!mainChat) {
+      toast.error("No chat selected.");
+      return;
+    }
+    if (!user) {
+      toast.error("User not found.");
+      return;
+    }
+    await sendMessage(inputMessage, mainChat.id, user.id, setMainChat);
     setInputMessage("");
   };
 
@@ -82,21 +89,21 @@ const Chat: React.FC = () => {
             {friends && friends.some((friend) => friend.id === mainChat?.id) ? (
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded-md cursor-pointer"
-                onClick={() => removeFriend(mainChat?.id, setFriends)}
+                onClick={() => mainChat && removeFriend(mainChat.id, setFriends)}
               >
                 Remove Friend
               </button>
             ) : friendRequests &&
               friendRequests.some(
                 (request) =>
-                  request.id === mainChat?.id || request.from === mainChat?.id
+                  request.id === mainChat?.id
               ) ? (
               <div className="flex gap-2">
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded-md cursor-pointer"
-                  onClick={() =>
+                  onClick={() => mainChat &&
                     acceptFriendRequest(
-                      mainChat?.id,
+                      mainChat.id,
                       setFriendRequests,
                       setFriends,
                       friendRequests
@@ -107,8 +114,8 @@ const Chat: React.FC = () => {
                 </button>
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded-md cursor-pointer"
-                  onClick={() =>
-                    rejectFriendRequest(mainChat?.id, setFriendRequests)
+                  onClick={() => mainChat &&
+                    rejectFriendRequest(mainChat.id, setFriendRequests)
                   }
                 >
                   Reject
@@ -117,7 +124,7 @@ const Chat: React.FC = () => {
             ) : (
               <button
                 className="bg-indigo-500 text-white px-4 py-2 rounded-md cursor-pointer"
-                onClick={() => sendFriendRequest(mainChat.id)}
+                onClick={() => mainChat && sendFriendRequest(mainChat.id)}
               >
                 Add Friend
               </button>
@@ -134,10 +141,10 @@ const Chat: React.FC = () => {
                 <div
                   key={chat.id}
                   className={`flex mb-4 ${
-                    chat.senderId === user.id ? "justify-end" : ""
+                    chat.senderId === user?.id ? "justify-end" : ""
                   }`}
                 >
-                  {chat.senderId !== user.id && (
+                  {chat.senderId !== user?.id && (
                     <div className="w-9 h-9 rounded-full flex items-center justify-center mr-2">
                       <img
                         src={mainChat.img}
@@ -148,7 +155,7 @@ const Chat: React.FC = () => {
                   )}
                   <div
                     className={`flex max-w-96 ${
-                      chat.senderId !== user.id
+                      chat.senderId !== user?.id
                         ? "bg-gray-200 text-gray-700"
                         : "bg-indigo-500 text-white"
                     } rounded-lg p-3 gap-3`}
@@ -166,10 +173,10 @@ const Chat: React.FC = () => {
                       {chat.text}
                     </p>
                   </div>
-                  {chat.senderId === user.id && (
+                  {chat.senderId === user?.id && (
                     <div className="w-9 h-9 rounded-full flex items-center justify-center ml-2">
                       <img
-                        src={mainChat.myImg}
+                        src={mainChat?.myImg}
                         alt="My Avatar"
                         className="w-8 h-8 rounded-full"
                       />

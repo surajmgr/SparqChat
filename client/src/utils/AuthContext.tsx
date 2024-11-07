@@ -1,22 +1,23 @@
-import React, {
+import {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
 } from "react";
-import { socket, connectSocket, disconnectSocket } from "./socket";
+import { connectSocket, disconnectSocket } from "./socket";
 
 interface AuthContextType {
-  user: string | null;
+  user: { id: string; email: string; socketId: string } | null;
   login: (user: { id: string; email: string; socketId: string }) => void;
   logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; socketId: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
