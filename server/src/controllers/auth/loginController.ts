@@ -42,15 +42,13 @@ export const loginController = async (req: Request, res: Response): Promise<void
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-
-    if (!req.session || !req.session.user) {
-      res.status(500).json({ message: 'Server error' });
-      return;
+    
+    if (req.session) {
+      req.session.user = { id: user.id, email: user.email, socketId: user.socketId ?? undefined };
+      res.json({ message: 'Logged in successfully', user: req.session.user });
+    } else {
+      res.status(500).json({ message: 'Session is not available' });
     }
-    
-    req.session.user = { id: user.id, email: user.email, socketId: user.socketId ?? undefined };
-    
-    res.json({ message: 'Logged in successfully', user: req.session.user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
