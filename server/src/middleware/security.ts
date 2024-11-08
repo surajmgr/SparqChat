@@ -48,8 +48,15 @@ export const securityMiddleware = (app: Application): void => {
     })
   );
 
+  app.set('trust proxy', true);
+
   // Session management
   app.use(sessionMiddleware);
+  console.log({
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  })
 
   // CSRF Protection (Exclude API routes)
   app.use((req: Request, res: Response, next: NextFunction) => {

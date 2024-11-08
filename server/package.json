@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=production node dist/server.js",
-    "dev": "NODE_ENV=development nodemon --exec tsx src/server.ts",
+    "dev": "NODE_ENV=production nodemon --exec tsx src/server.ts",
     "lint": "eslint src/**/*.js",
     "build": "tsc",
     "format": "prettier --write src/**/*.ts"
