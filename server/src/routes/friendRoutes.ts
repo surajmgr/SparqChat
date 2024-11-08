@@ -1,5 +1,5 @@
 import express from 'express';
-import { acceptFriendRequest, fetchFriendRequests, fetchFriends, rejectFriendRequest, removeFriend, sendFriendRequest } from '../controllers/request/friendController';
+import { acceptFriendRequest, fetchFriendRequests, fetchFriends, rejectFriendRequest, removeFriend, sendFriendRequest } from '../controllers/request/friendController.js';
 const router = express.Router();
 
 router.post("/send-friend-request", sendFriendRequest);

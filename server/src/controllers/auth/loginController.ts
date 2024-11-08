@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Session } from 'express-session';
-import { prisma } from '../../db/queryHandler';
+import { prisma } from '../../db/queryHandler.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Yup from 'yup';

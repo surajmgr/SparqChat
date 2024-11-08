@@ -7,7 +7,7 @@ import session from 'express-session';
 import Redis from 'ioredis';
 import { RedisStore } from 'connect-redis';
 import { Application, Request, Response, NextFunction, ErrorRequestHandler } from 'express';
-import { redisClient } from '../utils/redis';
+import { redisClient } from '../utils/redis.js';
 import dotnet from 'dotenv';
 
 dotnet.config();

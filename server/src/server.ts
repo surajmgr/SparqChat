@@ -2,12 +2,12 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { protectRoutes, securityMiddleware, sessionMiddleware, wrap } from './middleware/security';
-import routes from './routes/index';
+import { protectRoutes, securityMiddleware, sessionMiddleware, wrap } from './middleware/security.js';
+import routes from './routes/index.js';
 import 'dotenv/config';
-import { isAuthenticated } from './middleware/protectMiddlewares';
-import { authorizeUser, initializeUser, disconnectUser } from './middleware/socket';
-import { addFriend, removeFriend } from './controllers/socket/friendController';
+import { isAuthenticated } from './middleware/protectMiddlewares.js';
+import { authorizeUser, initializeUser, disconnectUser } from './middleware/socket.js';
+import { addFriend, removeFriend } from './controllers/socket/friendController.js';
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;

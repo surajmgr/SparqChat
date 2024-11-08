@@ -1,7 +1,7 @@
-import { prisma } from '../../db/queryHandler';
+import { prisma } from '../../db/queryHandler.js';
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { redisClient } from '../../utils/redis';
+import { redisClient } from '../../utils/redis.js';
 
 import { Socket } from 'socket.io';
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { prisma } from '../../db/queryHandler';
-import { redisClient } from '../../utils/redis';
-import { io } from '../../server';
+import { prisma } from '../../db/queryHandler.js';
+import { redisClient } from '../../utils/redis.js';
+import { io } from '../../server.js';
 
 export const randomChat = async (
   req: Request,
