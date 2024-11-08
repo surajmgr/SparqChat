@@ -11,7 +11,9 @@ router.get('/friends', fetchFriends);
 router.get('/friend-requests', fetchFriendRequests);
 
 router.get('/', (req, res) => {
-    res.send('Friend routes');
+    res.send('Friend routes')
+return;
+
     }
 );
 

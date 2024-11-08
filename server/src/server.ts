@@ -5,7 +5,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { protectRoutes, securityMiddleware, sessionMiddleware, wrap } from './middleware/security';
 import routes from './routes/index';
 import 'dotenv/config';
-import { isAuthenticated, jwtProtect } from './middleware/protectMiddlewares';
+import { isAuthenticated } from './middleware/protectMiddlewares';
 import { authorizeUser, initializeUser, disconnectUser } from './middleware/socket';
 import { addFriend, removeFriend } from './controllers/socket/friendController';
 
@@ -28,7 +28,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, world!');
+  res.send('Hello, world!')
+return;
+
 });
 
 const httpServer = createServer(app);
@@ -46,8 +48,7 @@ io.use(authorizeUser);
 io.on('connection', (socket) => {
   console.log('A user connected');
   console.log(`Socket ID: ${socket.id}`);
-  console.log(`User ID: ${socket.request.session.user.socketId}`);
-  console.log(socket.request.session.user);
+  console.log(`User: ${socket.request && socket.request.session && socket.request.session.user}`);
 
   initializeUser(socket, io);
   

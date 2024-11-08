@@ -3,18 +3,20 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { redisClient } from '../../utils/redis';
 
-export const addFriend = async (friendId, socket, io, cb) => {
+import { Socket } from 'socket.io';
+
+export const addFriend = async (friendId: string, socket: Socket, io: any, cb: (response: { success: boolean; message?: string; friend?: any }) => void) => {
     try {
         console.log("Adding friend:", friendId);
-
-        if (socket.user.id === friendId) {
+        
+        if (socket.user && socket.user.id === friendId) {
             return cb({ success: false, message: "You cannot add yourself as a friend" });
         }
 
         // Get friend's socket ID from Redis
         const friendSocketId = await redisClient.hget(`user:${friendId}`, "socketId");
 
-        if (friendSocketId) {
+        if (friendSocketId && socket.user) {
             io.to(friendSocketId).emit("friendRequest", {
                 id: socket.user.id,
                 email: socket.user.email,
@@ -42,7 +44,7 @@ export const addFriend = async (friendId, socket, io, cb) => {
     }
 };
 
-export const removeFriend = (friendId, cb) => {
+export const removeFriend = (friendId: string, cb: (response: { success: boolean; message?: string }) => void) => {
     console.log('Removing friend', friendId);
 
     cb({ success: true });

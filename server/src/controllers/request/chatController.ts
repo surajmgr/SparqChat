@@ -3,8 +3,15 @@ import { prisma } from '../../db/queryHandler';
 import { redisClient } from '../../utils/redis';
 import { io } from '../../server';
 
-export const randomChat = async (req: Request, res: Response) => {
+export const randomChat = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
+    if (!req.session || !req.session.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
     const userId = req.session.user.id;
 
     const userCount = await prisma.users.count({
@@ -16,7 +23,8 @@ export const randomChat = async (req: Request, res: Response) => {
     });
 
     if (userCount === 0) {
-      return res.status(404).json({ message: 'No users found.' });
+      res.status(404).json({ message: 'No users found.' });
+      return;
     }
 
     // Get a random offset (skip index)
@@ -33,7 +41,8 @@ export const randomChat = async (req: Request, res: Response) => {
     });
 
     if (!randomUser.length) {
-      return res.status(404).json({ message: 'No users found.' });
+      res.status(404).json({ message: 'No users found.' });
+      return;
     }
 
     const chatHistory = await prisma.chat.findMany({
@@ -61,8 +70,8 @@ export const randomChat = async (req: Request, res: Response) => {
       senderId: chat.senderId,
       receiverId: chat.receiverId,
     }));
-
-    return res.status(200).json({
+    
+    res.status(200).json({
       id: randomUser[0].id,
       name: randomUser[0].name,
       img: 'https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato',
@@ -73,28 +82,34 @@ export const randomChat = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Internal server error.' });
+    return;
   }
 };
 
-export const getChatMessages = async (req: Request, res: Response) => {
+export const getChatMessages = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { userId, chatUserId, chatEmail } = req.body;
 
-    const user = chatUserId != 'null'
-      ? await prisma.users.findUnique({
-          where: {
-            id: chatUserId,
-          },
-        })
-      : await prisma.users.findUnique({
-          where: {
-            email: chatEmail,
-          },
-        });
+    const user =
+      chatUserId != 'null'
+        ? await prisma.users.findUnique({
+            where: {
+              id: chatUserId,
+            },
+          })
+        : await prisma.users.findUnique({
+            where: {
+              email: chatEmail,
+            },
+          });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      res.status(404).json({ message: 'User not found.' });
+      return;
     }
 
     const chatMessages = await prisma.chat.findMany({
@@ -122,8 +137,8 @@ export const getChatMessages = async (req: Request, res: Response) => {
       senderId: chat.senderId,
       receiverId: chat.receiverId,
     }));
-
-    return res.status(200).json({
+    
+    res.status(200).json({
       id: user.id,
       name: user.name,
       img: 'https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato',
@@ -134,12 +149,21 @@ export const getChatMessages = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Internal server error.' });
+    return;
   }
 };
 
-export const sendChatMessage = async (req: Request, res: Response) => {
+export const sendChatMessage = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
+    if (!req.session || !req.session.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
     const { message, receiverId } = req.body;
     const senderId = req.session.user.id;
 
@@ -151,7 +175,7 @@ export const sendChatMessage = async (req: Request, res: Response) => {
       },
     });
 
-    chatMessage = {
+    const newChatMessage = {
       id: chatMessage.id,
       text: chatMessage.message,
       timestamp: chatMessage.createdAt,
@@ -165,21 +189,33 @@ export const sendChatMessage = async (req: Request, res: Response) => {
     );
 
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit('new_message', chatMessage);
+      io.to(receiverSocketId).emit('new_message', newChatMessage);
     }
 
-    return res.status(200).json({ message: 'Message sent successfully.' });
-  } catch (error) {
+    res.status(200).json({ message: 'Message sent successfully.' });
+    return;
+  } catch (error: any) {
     console.log(error);
-    return res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Internal server error.' });
+    return;
   }
 };
 
-export const fetchChattedUsers = async (req: Request, res: Response) => {
+export const fetchChattedUsers = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
+    if (!req.session || !req.session.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
     const userId = req.session.user.id;
-  } catch (error) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  } catch (error: any) {
     console.log(error);
-    return res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Internal server error.' });
+    return;
   }
 };

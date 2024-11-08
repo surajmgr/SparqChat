@@ -11,14 +11,16 @@ const registerSchema = Yup.object().shape({
   password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
 
-export const registerController = async (req: Request, res: Response) => {
+export const registerController = async (req: Request, res: Response): Promise<void> => {
   try {
     const data = req.body;
     
     try {
       await registerSchema.validate(data);
-    } catch (error) {
-      return res.status(400).json({ message: error.errors[0] });
+    } catch (error: any) {
+      res.status(400).json({ message: error.errors[0] })
+return;
+
     }
 
     const { email, password } = data;
@@ -31,7 +33,9 @@ export const registerController = async (req: Request, res: Response) => {
     });
 
     if (user) {
-      return res.status(400).json({ message: 'User already exists' });
+      res.status(400).json({ message: 'User already exists' })
+return;
+
     }
 
     // Hash password
@@ -47,12 +51,22 @@ export const registerController = async (req: Request, res: Response) => {
         socketId: uuidv4(),
       },
     });
-    
-    req.session.user = { id: newUser.id, email: newUser.email, socketId: newUser.socketId };
 
-    res.json({ message: 'Registered successfully', user: req.session.user });
-  } catch (error) {
+    if (!req.session || !req.session.user) {
+      res.status(500).json({ message: 'Server error' })
+return;
+
+    }
+    
+    req.session.user = { id: newUser.id, email: newUser.email, socketId: newUser.socketId ?? undefined };
+
+    res.json({ message: 'Registered successfully', user: req.session.user })
+return;
+
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error' })
+return;
+
   }
 };

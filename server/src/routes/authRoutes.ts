@@ -10,9 +10,4 @@ router.post('/logout', logoutController);
 
 router.get('/isLoggedIn', checkLoggedInStatus);
 
-router.get('/', (req, res) => {
-    res.send('Auth routes');
-    }
-);
-
 export default router;

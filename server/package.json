@@ -10,7 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=production node dist/server.js",
     "dev": "NODE_ENV=development nodemon --exec tsx src/server.ts",
-    "lint": "eslint src/**/*.js"
+    "lint": "eslint src/**/*.js",
+    "build": "tsc",
+    "format": "prettier --write src/**/*.ts"
   },
   "keywords": [],
   "author": "",
@@ -39,9 +41,12 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
+    "@types/csurf": "^1.11.5",
     "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.1",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.13.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",

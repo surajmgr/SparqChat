@@ -5,11 +5,18 @@ import { io } from "../../server";
 
 export const sendFriendRequest = async (req: Request, res: Response) => {
     try {
+        if (!req.session || !req.session.user) {
+          res.status(401).json({ message: 'Unauthorized' })
+return;
+
+        }
         const { recipientId } = req.body;
         const requesterId = req.session.user.id;
 
         if (!recipientId) {
-            return res.status(400).json({ message: "Recipient ID is required." });
+            res.status(400).json({ message: "Recipient ID is required." })
+return;
+
         }
         
         const existingRequest = await prisma.friendship.findFirst({
@@ -22,7 +29,9 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
         });
 
         if (existingRequest) {
-            return res.status(400).json({ message: "Friend request already exists." });
+            res.status(400).json({ message: "Friend request already exists." })
+return;
+
         }
         
         await prisma.friendship.create({
@@ -40,21 +49,32 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
             io.to(recipientSocketId).emit("friend_request", { id: requesterId, name: req.session.user.email.split('@')[0], img: 'https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato' });
         }
 
-        res.json({ message: "Friend request sent." });
-    } catch (error) {
+        res.json({ message: "Friend request sent." })
+return;
+
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ message: "An error occurred while sending the friend request." });
+        res.status(500).json({ message: "An error occurred while sending the friend request." })
+return;
+
     }
 };
 
 export const acceptFriendRequest = async (req: Request, res: Response) => {
     try {
+        if (!req.session || !req.session.user) {
+          res.status(401).json({ message: 'Unauthorized' })
+return;
+
+        }
         const { requesterId } = req.body;
         const recipientId = req.session.user.id;
         
         const exists = await redisClient.sismember(`user:${recipientId}:friend_requests`, requesterId);
         if (!exists) {
-            return res.status(400).json({ message: "No friend request found." });
+            res.status(400).json({ message: "No friend request found." })
+return;
+
         }
         
         await prisma.friendship.updateMany({
@@ -71,15 +91,24 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
             io.to(requesterSocketId).emit("friend_request_accepted", { id: recipientId, name: req.session.user.email.split('@')[0], img: 'https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato' });
         }
 
-        res.json({ message: "Friend request accepted.", online: requesterSocketId ? true : false });
-    } catch (error) {
+        res.json({ message: "Friend request accepted.", online: requesterSocketId ? true : false })
+return;
+
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ message: "An error occurred while accepting the friend request." });
+        res.status(500).json({ message: "An error occurred while accepting the friend request." })
+return;
+
     }
 };
 
 export const removeFriend = async (req: Request, res: Response) => {
     try {
+        if (!req.session || !req.session.user) {
+          res.status(401).json({ message: 'Unauthorized' })
+return;
+
+        }
         const { friendId } = req.body;
         const userId = req.session.user.id;
         
@@ -100,15 +129,24 @@ export const removeFriend = async (req: Request, res: Response) => {
             io.to(friendSocketId).emit("friend_removed", { friendId: userId });
         }
 
-        res.json({ message: "Friend removed successfully." });
-    } catch (error) {
+        res.json({ message: "Friend removed successfully." })
+return;
+
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ message: "An error occurred while removing the friend." });
+        res.status(500).json({ message: "An error occurred while removing the friend." })
+return;
+
     }
 };
 
 export const rejectFriendRequest = async (req: Request, res: Response) => {
     try {
+        if (!req.session || !req.session.user) {
+          res.status(401).json({ message: 'Unauthorized' })
+return;
+
+        }
         const { requesterId } = req.body;
         const recipientId = req.session.user.id;
         
@@ -122,15 +160,24 @@ export const rejectFriendRequest = async (req: Request, res: Response) => {
             io.to(requesterSocketId).emit("friend_request_rejected", { friendId: recipientId });
         }
 
-        res.json({ message: "Friend request rejected." });
-    } catch (error) {
+        res.json({ message: "Friend request rejected." })
+return;
+
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ message: "An error occurred while rejecting the friend request." });
+        res.status(500).json({ message: "An error occurred while rejecting the friend request." })
+return;
+
     }
 }
 
 export const fetchFriends = async (req: Request, res: Response) => {
     try {
+        if (!req.session || !req.session.user) {
+          res.status(401).json({ message: 'Unauthorized' })
+return;
+
+        }
         const userId = req.session.user.id;
         
         const friends = await redisClient.smembers(`user:${userId}:friends`);
@@ -141,25 +188,34 @@ export const fetchFriends = async (req: Request, res: Response) => {
                 where: { id: friendId }
             });
             
-            friend = {
-                id: friend.id,
-                name: friend?.name,
-                img: 'https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato',
-                online: await redisClient.hget(`user:${friend.id}`, "socketId") ? true : false
-            };
-
-            friendList.push(friend);
+            if (friend) {
+                const friendWithImg = {
+                    ...friend,
+                    img: 'https://placehold.co/200x/ffa8e4/ffffff.svg?text=ʕ•́ᴥ•̀ʔ&font=Lato',
+                    online: await redisClient.hget(`user:${friend.id}`, "socketId") ? true : false
+                };
+                friendList.push(friendWithImg);
+            }
         }
 
-        res.json(friendList);
-    } catch (error) {
+        res.json(friendList)
+return;
+
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ message: "An error occurred while fetching friends." });
+        res.status(500).json({ message: "An error occurred while fetching friends." })
+return;
+
     }
 };
 
 export const fetchFriendRequests = async (req: Request, res: Response) => {
     try {
+        if (!req.session || !req.session.user) {
+          res.status(401).json({ message: 'Unauthorized' })
+return;
+
+        }
         const userId = req.session.user.id;
         
         const friendRequests = await prisma.friendship.findMany({
@@ -178,6 +234,10 @@ export const fetchFriendRequests = async (req: Request, res: Response) => {
             let requester = await prisma.users.findUnique({
                 where: { id: request.requesterId }
             });
+
+            if (!requester) {
+                continue;
+            }
             
             const requestInfo = {
                 id: requester.id,
@@ -188,9 +248,13 @@ export const fetchFriendRequests = async (req: Request, res: Response) => {
             requestList.push(requestInfo);
         }
 
-        res.json(requestList);
-    } catch (error) {
+        res.json(requestList)
+return;
+
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ message: "An error occurred while fetching friend requests." });
+        res.status(500).json({ message: "An error occurred while fetching friend requests." })
+return;
+
     }
 }
